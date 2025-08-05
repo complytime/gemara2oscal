@@ -106,7 +106,7 @@ func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []
 }
 
 // AddParameterModifiers takes parameter modifications for a given Layer 2 reference and creates OSCAL set-parameters
-// on the associated control set implementations. This will only take effect is the Layer 2 Catalogs has been added
+// on the associated control set implementations. This will only take effect if the Layer 2 Catalogs has been added
 // through AddTargetComponent.
 func (c *DefinitionBuilder) AddParameterModifiers(referenceId string, modifiers []layer3.ParameterModifier) *DefinitionBuilder {
 	component, found := c.targetComponents[referenceId]
