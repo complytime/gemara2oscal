@@ -1,0 +1,88 @@
+# An adapted copy of the OSPS-QA.yaml for demo - https://github.com/ossf/security-baseline/blob/main/baseline/OSPS-QA.yaml
+metadata:
+  id: OSPS-B
+  title: Open Source Project Security Baseline
+  description: |
+    The Open Source Project Security (OSPS) Baseline is a set of security
+    criteria that projects should meet to demonstrate a strong security posture.
+  applicability-categories:
+    - id: Maturity1
+      title: Maturity Level 1
+      description: |
+        Any code or non-code project with any number of maintainers or users
+    - id: Maturity2
+      title: Maturity Level 2
+      description: |
+        Any code project that has at least 2 maintainers and a small number of
+        consistent users
+    - id: Maturity3
+      title: Maturity Level 3
+      description: |
+        Any code project that has a large number of consistent users
+  mapping-references:
+    - id: 800-161
+      title: Cybersecurity Supply Chain Risk Management Practices for Systems and Organizations
+      version: "1.1"
+      url: https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final
+control-families:
+- title: Quality
+  description: |
+    Quality focuses on the processes and
+    practices used to ensure the quality and
+    reliability of the project's source code and
+    software assets. These controls help ensure
+    that the project's source code is well
+    maintained, secure, and reliable, reducing the
+    risk of defects or vulnerabilities in the
+    software.
+  controls:
+  - id: OSPS-QA-07
+    title: |
+      The project's version control system MUST require at least one
+      non-author approval of changes to the primary branch.
+    objective: |
+      Ensure that the project's version control system requires at least one
+      non-author approval of changes before merging into the release or primary
+      branch.
+    guideline-mappings:
+      - reference-id: BPB
+        identifiers:
+          - B-G-3
+      - reference-id: Scorecard
+        identifiers:
+          - Code-Review
+      - reference-id: PSSCRM
+        identifiers:
+          - G2.4
+          - P3.3
+          - P3.5
+      - reference-id: PCIDSS
+        identifiers:
+          - 6.2.3.1
+          - 6.4.2
+          - 6.5.4
+      - reference-id: 800-161
+        identifiers:
+          - AC-5
+          - AU-6
+          - PL-8
+          - SA-15
+          - SR-3
+    assessment-requirements:
+      - id: OSPS-QA-07.01
+        text: |
+          When a commit is made to the primary branch, the project's version
+          control system MUST require at least one non-author approval of the
+          changes before merging.
+        applicability:
+          - Maturity Level 3
+        recommendation: |
+          Configure the project's version control system to require at least one
+          non-author approval of changes before merging into the release or
+          primary branch. This can be achieved by requiring a pull request to be
+          reviewed and approved by at least one other contributor before it can
+          be merged.
+        recommended-parameters:
+          - id: main_branch_min_approvals
+            description: Minimum approvals on the default branch
+            default: 1
