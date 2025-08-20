@@ -1,0 +1,33 @@
+version: "2"
+run:
+  # disallows implicit automatic updating of go.mod and fails when any changes to go.mod are needed
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - asciicheck
+    - bidichk
+    - durationcheck
+    - errname
+    - errorlint
+    - gosec
+    - importas
+    - misspell
+    - nilerr
+    - nolintlint
+    - unconvert
+  disable:
+    # Revisit issues in the codebase with these linters
+    # and re-enable
+    - errcheck
+    - unused
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
