@@ -1,10 +1,10 @@
-module github.com/complytime/cac-transpiler
+module github.com/complytime/gemara2oscal
 
 go 1.24.4
 
 require (
 	github.com/oscal-compass/oscal-sdk-go v0.0.4
-	github.com/ossf/gemara v0.0.0
+	github.com/ossf/gemara v0.4.0
 )
 
 require (
