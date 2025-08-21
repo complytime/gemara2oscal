@@ -1,33 +1,17 @@
 version: "2"
-run:
-  # disallows implicit automatic updating of go.mod and fails when any changes to go.mod are needed
-  modules-download-mode: readonly
-
 linters:
+  default: standard   # https://golangci-lint.run/usage/linters/#enabled-by-default
   enable:
-    - asciicheck
-    - bidichk
-    - durationcheck
-    - errname
-    - errorlint
-    - gosec
-    - importas
-    - misspell
-    - nilerr
-    - nolintlint
-    - unconvert
-  disable:
-    # Revisit issues in the codebase with these linters
-    # and re-enable
-    - errcheck
-    - unused
+    - gosec           # Security checks for Go code
   exclusions:
-    rules:
-      - path: _test\.go
-        linters:
-          - gosec
-
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
 formatters:
   enable:
-    - gofmt
-    - goimports
+    - goimports       # Checks import statements are formatted
+  exclusions:
+    generated: lax
