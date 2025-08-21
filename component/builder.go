@@ -86,8 +86,8 @@ func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []
 
 	for _, eval := range evaluations {
 		for _, assessment := range eval.Assessments {
-			for _, method := range assessment.Methods {
-				checkProps := makeCheck(assessment.Requirement_Id, method, groupNumber)
+			for _, procedure := range assessment.Procedures {
+				checkProps := makeCheck(assessment.RequirementId, procedure, groupNumber)
 				groupNumber += 1
 				componentProps = append(componentProps, checkProps...)
 			}
@@ -209,7 +209,7 @@ func makeRule(requirement layer2.AssessmentRequirement, groupNumber int) []oscal
 	return props
 }
 
-func makeCheck(ruleId string, method layer4.AssessmentMethod, groupNumber int) []oscalTypes.Property {
+func makeCheck(ruleId string, procedure *layer4.AssessmentProcedure, groupNumber int) []oscalTypes.Property {
 	remark := fmt.Sprintf("rule_set_%d", groupNumber)
 	ruleIdProp := oscalTypes.Property{
 		Name:    extensions.RuleIdProp,
@@ -220,14 +220,14 @@ func makeCheck(ruleId string, method layer4.AssessmentMethod, groupNumber int) [
 
 	checkIdProp := oscalTypes.Property{
 		Name:    extensions.CheckIdProp,
-		Value:   method.Name,
+		Value:   procedure.Id,
 		Ns:      extensions.TrestleNameSpace,
 		Remarks: remark,
 	}
 
 	checkDescProp := oscalTypes.Property{
 		Name:    extensions.CheckDescriptionProp,
-		Value:   method.Description,
+		Value:   procedure.Description,
 		Ns:      extensions.TrestleNameSpace,
 		Remarks: remark,
 	}
@@ -250,8 +250,8 @@ func mapRule(ruleId string, mappings []layer2.Mapping, ciSets map[string]oscalTy
 		if !ok {
 			continue
 		}
-		for _, identifier := range mapping.Identifiers {
-			createOrUpdateImplementedRequirement(ruleIdProp, identifier, &targetCI)
+		for _, entry := range mapping.Entries {
+			createOrUpdateImplementedRequirement(ruleIdProp, entry.ReferenceId, &targetCI)
 		}
 		ciSets[mapping.ReferenceId] = targetCI
 	}
