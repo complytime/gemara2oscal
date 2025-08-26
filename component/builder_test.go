@@ -24,14 +24,16 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	require.NoError(t, err)
 
 	eval := layer4.ControlEvaluation{
-		Control_Id: "OSPS-QA-07",
+		ControlID: "OSPS-QA-07",
 		Assessments: []*layer4.Assessment{
 			{
-				Requirement_Id: "OSPS-QA-07.01",
-				Methods: []layer4.AssessmentMethod{
+				RequirementId: "OSPS-QA-07.01",
+				Procedures: []*layer4.AssessmentProcedure{
 					{
-						Name:        "my-check-id",
-						Description: "My method",
+						Id:          "my-check-id",
+						Name:        "My Check",
+						Description: "My Check",
+						Method:      layer4.ObservationMethod,
 					},
 				},
 			},
