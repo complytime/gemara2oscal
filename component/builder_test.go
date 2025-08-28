@@ -50,6 +50,8 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	ci := *components[0].ControlImplementations
 	require.Len(t, ci, 1)
 	require.Equal(t, []oscalTypes.Property{{Name: extensions.FrameworkProp, Value: "800-161", Ns: extensions.TrestleNameSpace}}, *ci[0].Props)
+	implementReq := ci[0].ImplementedRequirements
+	require.Len(t, implementReq, 5)
 
 	oscalModels := oscalTypes.OscalModels{
 		ComponentDefinition: &componentDefinition,
