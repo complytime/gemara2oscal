@@ -19,7 +19,7 @@ require (
 require (
 	github.com/defenseunicorns/go-oscal v0.6.3
 	github.com/goccy/go-yaml v1.18.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 )
 
 // Points to experiments/oscal-transformation branch (temporarily)
