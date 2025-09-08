@@ -23,4 +23,4 @@ require (
 )
 
 // Points to experiments/oscal-transformation branch (temporarily)
-replace github.com/ossf/gemara => github.com/jpower432/sci v0.0.0-20250821140246-72e7d4e3fb1e
+replace github.com/ossf/gemara => github.com/jpower432/sci v0.0.0-20250828223210-15f2a5532714

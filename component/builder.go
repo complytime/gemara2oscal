@@ -80,11 +80,11 @@ func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType st
 	return c
 }
 
-func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []layer4.ControlEvaluation) *DefinitionBuilder {
+func (c *DefinitionBuilder) AddValidationComponent(source string, plans []layer4.AssessmentPlan) *DefinitionBuilder {
 	var componentProps []oscalTypes.Property
 	var groupNumber = 00
 
-	for _, eval := range evaluations {
+	for _, eval := range plans {
 		for _, assessment := range eval.Assessments {
 			for _, procedure := range assessment.Procedures {
 				checkProps := makeCheck(assessment.RequirementId, procedure, groupNumber)
@@ -209,7 +209,7 @@ func makeRule(requirement layer2.AssessmentRequirement, groupNumber int) []oscal
 	return props
 }
 
-func makeCheck(ruleId string, procedure *layer4.AssessmentProcedure, groupNumber int) []oscalTypes.Property {
+func makeCheck(ruleId string, procedure layer4.AssessmentProcedure, groupNumber int) []oscalTypes.Property {
 	remark := fmt.Sprintf("rule_set_%d", groupNumber)
 	ruleIdProp := oscalTypes.Property{
 		Name:    extensions.RuleIdProp,
@@ -227,7 +227,7 @@ func makeCheck(ruleId string, procedure *layer4.AssessmentProcedure, groupNumber
 
 	checkDescProp := oscalTypes.Property{
 		Name:    extensions.CheckDescriptionProp,
-		Value:   procedure.Description,
+		Value:   strings.ReplaceAll(procedure.Description, "\n", "\\n"),
 		Ns:      extensions.TrestleNameSpace,
 		Remarks: remark,
 	}
@@ -251,13 +251,13 @@ func mapRule(ruleId string, mappings []layer2.Mapping, ciSets map[string]oscalTy
 			continue
 		}
 		for _, entry := range mapping.Entries {
-			createOrUpdateImplementedRequirement(ruleIdProp, entry.ReferenceId, &targetCI)
+			createOrUpdateImplementedRequirement(ruleIdProp, entry.ReferenceId, entry.Remarks, &targetCI)
 		}
 		ciSets[mapping.ReferenceId] = targetCI
 	}
 }
 
-func createOrUpdateImplementedRequirement(ruleIdProp oscalTypes.Property, identifier string, controlImplementation *oscalTypes.ControlImplementationSet) {
+func createOrUpdateImplementedRequirement(ruleIdProp oscalTypes.Property, identifier, description string, controlImplementation *oscalTypes.ControlImplementationSet) {
 	var found bool
 	for i := range controlImplementation.ImplementedRequirements {
 		if controlImplementation.ImplementedRequirements[i].ControlId == identifier {
@@ -273,9 +273,10 @@ func createOrUpdateImplementedRequirement(ruleIdProp oscalTypes.Property, identi
 	// Check if it is set, this means create a new one
 	if !found {
 		implRequirement := oscalTypes.ImplementedRequirementControlImplementation{
-			UUID:      uuid.NewUUID(),
-			ControlId: utils.NormalizeControl(identifier),
-			Props:     &[]oscalTypes.Property{ruleIdProp},
+			UUID:        uuid.NewUUID(),
+			ControlId:   utils.NormalizeControl(identifier),
+			Props:       &[]oscalTypes.Property{ruleIdProp},
+			Description: description,
 		}
 		controlImplementation.ImplementedRequirements = append(controlImplementation.ImplementedRequirements, implRequirement)
 	}
