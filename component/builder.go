@@ -80,7 +80,7 @@ func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType st
 	return c
 }
 
-func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []layer4.ControlEvaluation) *DefinitionBuilder {
+func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []layer4.AssessmentPlan) *DefinitionBuilder {
 	var componentProps []oscalTypes.Property
 	var groupNumber = 00
 
@@ -209,7 +209,7 @@ func makeRule(requirement layer2.AssessmentRequirement, groupNumber int) []oscal
 	return props
 }
 
-func makeCheck(ruleId string, procedure *layer4.AssessmentProcedure, groupNumber int) []oscalTypes.Property {
+func makeCheck(ruleId string, procedure layer4.AssessmentProcedure, groupNumber int) []oscalTypes.Property {
 	remark := fmt.Sprintf("rule_set_%d", groupNumber)
 	ruleIdProp := oscalTypes.Property{
 		Name:    extensions.RuleIdProp,
