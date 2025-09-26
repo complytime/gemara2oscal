@@ -80,12 +80,12 @@ func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType st
 	return c
 }
 
-func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []layer4.AssessmentPlan) *DefinitionBuilder {
+func (c *DefinitionBuilder) AddValidationComponent(evaluationPlan layer4.EvaluationPlan) *DefinitionBuilder {
 	var componentProps []oscalTypes.Property
 	var groupNumber = 00
 
-	for _, eval := range evaluations {
-		for _, assessment := range eval.Assessments {
+	for _, plan := range evaluationPlan.Plans {
+		for _, assessment := range plan.Assessments {
 			for _, procedure := range assessment.Procedures {
 				checkProps := makeCheck(assessment.RequirementId, procedure, groupNumber)
 				groupNumber += 1
@@ -98,7 +98,7 @@ func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []
 	component := oscalTypes.DefinedComponent{
 		UUID:  uuid.NewUUID(),
 		Type:  "validation",
-		Title: source,
+		Title: evaluationPlan.Metadata.Evaluator.Name,
 		Props: utils.NilIfEmpty(&componentProps),
 	}
 	c.validationComponent = append(c.validationComponent, component)
