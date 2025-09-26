@@ -23,16 +23,25 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	err = decoder.Decode(&catalog)
 	require.NoError(t, err)
 
-	eval := layer4.AssessmentPlan{
-		ControlId: "OSPS-QA-07",
-		Assessments: []layer4.Assessment{
+	plan := layer4.EvaluationPlan{
+		Metadata: layer4.Metadata{
+			Evaluator: layer4.Evaluator{
+				Name: "myvalidator",
+			},
+		},
+		Plans: []layer4.AssessmentPlan{
 			{
-				RequirementId: "OSPS-QA-07.01",
-				Procedures: []layer4.AssessmentProcedure{
+				ControlId: "OSPS-QA-07",
+				Assessments: []layer4.Assessment{
 					{
-						Id:          "my-check-id",
-						Name:        "My Check",
-						Description: "My Check",
+						RequirementId: "OSPS-QA-07.01",
+						Procedures: []layer4.AssessmentProcedure{
+							{
+								Id:          "my-check-id",
+								Name:        "My Check",
+								Description: "My Check",
+							},
+						},
 					},
 				},
 			},
@@ -40,7 +49,7 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	}
 
 	builder := NewDefinitionBuilder("ComponentDefinition", "v0.1.0")
-	componentDefinition := builder.AddTargetComponent("Example", "software", catalog).AddValidationComponent("myvalidator", []layer4.AssessmentPlan{eval}).Build()
+	componentDefinition := builder.AddTargetComponent("Example", "software", catalog).AddValidationComponent(plan).Build()
 	require.Len(t, *componentDefinition.Components, 2)
 
 	components := *componentDefinition.Components
