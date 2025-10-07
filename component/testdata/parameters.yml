@@ -1,0 +1,4 @@
+"OSPS-QA-07.01":
+  - id: main_branch_min_approvals
+    description: Minimum approvals on the default branch
+    default: 1

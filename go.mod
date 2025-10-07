@@ -4,7 +4,7 @@ go 1.24.4
 
 require (
 	github.com/oscal-compass/oscal-sdk-go v0.0.8
-	github.com/ossf/gemara v0.9.0
+	github.com/ossf/gemara v0.12.1
 )
 
 require (
@@ -22,6 +22,3 @@ require (
 	github.com/goccy/go-yaml v1.18.0
 	github.com/stretchr/testify v1.11.1
 )
-
-// Points to parameters branch
-replace github.com/ossf/gemara => github.com/jpower432/sci v0.0.0-20250926232238-7ff65fe87e45
