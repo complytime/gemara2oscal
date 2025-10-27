@@ -9,7 +9,6 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/ossf/gemara/layer2"
-	"github.com/ossf/gemara/layer3"
 	"github.com/ossf/gemara/layer4"
 	"github.com/stretchr/testify/require"
 )
@@ -18,21 +17,37 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	file, err := os.Open("./testdata/good-osps.yml")
 	require.NoError(t, err)
 
+	var parameters Parameters
+	require.NoError(t, parameters.Load("./testdata/parameters.yml"))
+
 	var catalog layer2.Catalog
 	decoder := yaml.NewDecoder(file)
 	err = decoder.Decode(&catalog)
 	require.NoError(t, err)
 
-	eval := layer4.AssessmentPlan{
-		ControlId: "OSPS-QA-07",
-		Assessments: []layer4.Assessment{
+	plan := layer4.EvaluationPlan{
+		Metadata: layer4.Metadata{
+			Author: layer4.Author{
+				Name: "myvalidator",
+			},
+		},
+		Plans: []layer4.AssessmentPlan{
 			{
-				RequirementId: "OSPS-QA-07.01",
-				Procedures: []layer4.AssessmentProcedure{
+				Control: layer4.Mapping{
+					EntryId: "OSPS-QA-07",
+				},
+				Assessments: []layer4.Assessment{
 					{
-						Id:          "my-check-id",
-						Name:        "My Check",
-						Description: "My Check",
+						Requirement: layer4.Mapping{
+							EntryId: "OSPS-QA-07.01",
+						},
+						Procedures: []layer4.AssessmentProcedure{
+							{
+								Id:          "my-check-id",
+								Name:        "My Check",
+								Description: "My Check",
+							},
+						},
 					},
 				},
 			},
@@ -40,7 +55,7 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	}
 
 	builder := NewDefinitionBuilder("ComponentDefinition", "v0.1.0")
-	componentDefinition := builder.AddTargetComponent("Example", "software", catalog).AddValidationComponent("myvalidator", []layer4.AssessmentPlan{eval}).Build()
+	componentDefinition := builder.AddTargetComponent("Example", "software", catalog, parameters).AddValidationComponent(plan).Build()
 	require.Len(t, *componentDefinition.Components, 2)
 
 	components := *componentDefinition.Components
@@ -59,7 +74,7 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	err = validator.Validate(oscalModels)
 	require.NoError(t, err)
 
-	componentDefinition = builder.AddParameterModifiers("OSPS-B", []layer3.ParameterModifier{{
+	componentDefinition = builder.AddParameterModifiers("OSPS-B", []ParameterModifier{{
 		TargetId: "main_branch_min_approvals",
 		ModType:  "tighten",
 		Value:    2,

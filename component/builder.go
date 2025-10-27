@@ -10,7 +10,6 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/ossf/gemara/layer2"
-	"github.com/ossf/gemara/layer3"
 	"github.com/ossf/gemara/layer4"
 
 	"github.com/complytime/gemara2oscal/internal/utils"
@@ -33,7 +32,7 @@ func NewDefinitionBuilder(title, version string) *DefinitionBuilder {
 	}
 }
 
-func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType string, catalog layer2.Catalog) *DefinitionBuilder {
+func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType string, catalog layer2.Catalog, parameters Parameters) *DefinitionBuilder {
 	mappingSet := make(map[string]oscalTypes.ControlImplementationSet)
 	for _, mappingRef := range catalog.Metadata.MappingReferences {
 		mappingSet[mappingRef.Id] = oscalTypes.ControlImplementationSet{
@@ -56,7 +55,8 @@ func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType st
 	for _, family := range catalog.ControlFamilies {
 		for _, control := range family.Controls {
 			for _, assessment := range control.AssessmentRequirements {
-				ruleProps := makeRule(assessment, groupNumber)
+				assessmentParameters := parameters[assessment.Id]
+				ruleProps := makeRule(assessment, groupNumber, assessmentParameters)
 				groupNumber += 1
 				mapRule(assessment.Id, control.GuidelineMappings, mappingSet)
 				componentProps = append(componentProps, ruleProps...)
@@ -80,14 +80,14 @@ func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType st
 	return c
 }
 
-func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []layer4.AssessmentPlan) *DefinitionBuilder {
+func (c *DefinitionBuilder) AddValidationComponent(evaluationPlan layer4.EvaluationPlan) *DefinitionBuilder {
 	var componentProps []oscalTypes.Property
 	var groupNumber = 00
 
-	for _, eval := range evaluations {
-		for _, assessment := range eval.Assessments {
+	for _, plan := range evaluationPlan.Plans {
+		for _, assessment := range plan.Assessments {
 			for _, procedure := range assessment.Procedures {
-				checkProps := makeCheck(assessment.RequirementId, procedure, groupNumber)
+				checkProps := makeCheck(assessment.Requirement.EntryId, procedure, groupNumber)
 				groupNumber += 1
 				componentProps = append(componentProps, checkProps...)
 			}
@@ -98,7 +98,7 @@ func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []
 	component := oscalTypes.DefinedComponent{
 		UUID:  uuid.NewUUID(),
 		Type:  "validation",
-		Title: source,
+		Title: evaluationPlan.Metadata.Author.Name,
 		Props: utils.NilIfEmpty(&componentProps),
 	}
 	c.validationComponent = append(c.validationComponent, component)
@@ -108,15 +108,15 @@ func (c *DefinitionBuilder) AddValidationComponent(source string, evaluations []
 // AddParameterModifiers takes parameter modifications for a given Layer 2 reference and creates OSCAL set-parameters
 // on the associated control set implementations. This will only take effect if the Layer 2 Catalogs has been added
 // through AddTargetComponent.
-func (c *DefinitionBuilder) AddParameterModifiers(referenceId string, modifiers []layer3.ParameterModifier) *DefinitionBuilder {
+func (c *DefinitionBuilder) AddParameterModifiers(referenceId string, modifiers []ParameterModifier) *DefinitionBuilder {
 	component, found := c.targetComponents[referenceId]
 	if found {
 		// Create set parameters
 		setParams := make([]oscalTypes.SetParameter, 0, len(modifiers))
-		for _, param := range modifiers {
+		for _, modifier := range modifiers {
 			setParameter := oscalTypes.SetParameter{
-				ParamId: param.TargetId,
-				Values:  []string{convertToString(param.Value)},
+				ParamId: modifier.TargetId,
+				Values:  []string{convertToString(modifier.Value)},
 			}
 			setParams = append(setParams, setParameter)
 		}
@@ -154,7 +154,7 @@ func (c *DefinitionBuilder) Build() oscalTypes.ComponentDefinition {
 	}
 }
 
-func makeRule(requirement layer2.AssessmentRequirement, groupNumber int) []oscalTypes.Property {
+func makeRule(requirement layer2.AssessmentRequirement, groupNumber int, parameters []Parameter) []oscalTypes.Property {
 	remark := fmt.Sprintf("rule_set_%d", groupNumber)
 
 	ruleIdProp := oscalTypes.Property{
@@ -176,8 +176,8 @@ func makeRule(requirement layer2.AssessmentRequirement, groupNumber int) []oscal
 		ruleDescProp,
 	}
 
-	if len(requirement.RecommendedParameters) > 0 {
-		for i, parameter := range requirement.RecommendedParameters {
+	if len(parameters) > 0 {
+		for i, parameter := range parameters {
 			paramIdProp := oscalTypes.Property{
 				Name:    fmt.Sprintf("%s_%d", extensions.ParameterIdProp, i),
 				Value:   parameter.Id,
