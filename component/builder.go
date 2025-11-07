@@ -120,15 +120,10 @@ func (c *DefinitionBuilder) AddValidationComponent(evaluationPlan layer4.Evaluat
 			componentProps = append(componentProps, checkProps...)
 		}
 
-		componentTitle := executor.Name
-		if componentTitle == "" {
-			componentTitle = executorId
-		}
-
 		component := oscalTypes.DefinedComponent{
 			UUID:  uuid.NewUUID(),
 			Type:  "validation",
-			Title: componentTitle,
+			Title: executor.Id,
 			Props: utils.NilIfEmpty(&componentProps),
 		}
 		c.validationComponent = append(c.validationComponent, component)

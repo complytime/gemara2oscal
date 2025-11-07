@@ -23,4 +23,4 @@ require (
 	github.com/stretchr/testify v1.11.1
 )
 
-replace github.com/ossf/gemara => github.com/jpower432/sci v0.0.0-20251104004520-d5be371dcb9f
+replace github.com/ossf/gemara => github.com/jpower432/sci v0.0.0-20251107221736-76054b25e204

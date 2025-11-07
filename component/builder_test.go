@@ -73,7 +73,7 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	components := *componentDefinition.Components
 	require.Len(t, *components[0].Props, 5)
 	require.Len(t, *components[1].Props, 3)
-	require.Equal(t, "Automated Executor", components[1].Title)
+	require.Equal(t, "automated-executor", components[1].Title)
 	require.Equal(t, "validation", components[1].Type)
 
 	ci := *components[0].ControlImplementations
@@ -157,8 +157,8 @@ func TestDefinitionBuilder_AddValidationComponent_MultipleExecutors(t *testing.T
 	require.Len(t, *componentDefinition.Components, 2)
 
 	components := *componentDefinition.Components
-	require.Equal(t, "Executor One", components[0].Title)
-	require.Equal(t, "Executor Two", components[1].Title)
+	require.Equal(t, "executor-1", components[0].Title)
+	require.Equal(t, "executor-2", components[1].Title)
 	require.Equal(t, "validation", components[0].Type)
 	require.Equal(t, "validation", components[1].Type)
 }
