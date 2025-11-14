@@ -81,28 +81,60 @@ func (c *DefinitionBuilder) AddTargetComponent(targetComponent, componentType st
 }
 
 func (c *DefinitionBuilder) AddValidationComponent(evaluationPlan layer4.EvaluationPlan) *DefinitionBuilder {
-	var componentProps []oscalTypes.Property
-	var groupNumber = 00
+	executorsById := make(map[string]layer4.AssessmentExecutor)
+	for _, executor := range evaluationPlan.Executors {
+		executorsById[executor.Id] = executor
+	}
+
+	proceduresByExecutor := make(map[string][]executorProcedure)
 
 	for _, plan := range evaluationPlan.Plans {
 		for _, assessment := range plan.Assessments {
 			for _, procedure := range assessment.Procedures {
-				checkProps := makeCheck(assessment.Requirement.EntryId, procedure, groupNumber)
-				groupNumber += 1
-				componentProps = append(componentProps, checkProps...)
+				for _, executorRef := range procedure.Executors {
+					executor, ok := executorsById[executorRef.Id]
+					if !ok {
+						continue
+					}
+					if executor.Type == layer4.Manual {
+						continue // Skip manual executors
+					}
+					proceduresByExecutor[executor.Id] = append(proceduresByExecutor[executor.Id], executorProcedure{
+						requirement: assessment.Requirement,
+						procedure:   procedure,
+					})
+				}
 			}
-
 		}
 	}
 
-	component := oscalTypes.DefinedComponent{
-		UUID:  uuid.NewUUID(),
-		Type:  "validation",
-		Title: evaluationPlan.Metadata.Author.Name,
-		Props: utils.NilIfEmpty(&componentProps),
+	// Create a validation component for each executor
+	for executorId, procs := range proceduresByExecutor {
+		executor := executorsById[executorId]
+		var componentProps []oscalTypes.Property
+		var groupNumber = 00
+
+		for _, execProc := range procs {
+			checkProps := makeCheck(execProc.requirement.EntryId, execProc.procedure, groupNumber)
+			groupNumber += 1
+			componentProps = append(componentProps, checkProps...)
+		}
+
+		component := oscalTypes.DefinedComponent{
+			UUID:  uuid.NewUUID(),
+			Type:  "validation",
+			Title: executor.Id,
+			Props: utils.NilIfEmpty(&componentProps),
+		}
+		c.validationComponent = append(c.validationComponent, component)
 	}
-	c.validationComponent = append(c.validationComponent, component)
+
 	return c
+}
+
+type executorProcedure struct {
+	requirement layer4.Mapping
+	procedure   layer4.AssessmentProcedure
 }
 
 // AddParameterModifiers takes parameter modifications for a given Layer 2 reference and creates OSCAL set-parameters

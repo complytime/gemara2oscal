@@ -31,6 +31,13 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 				Name: "myvalidator",
 			},
 		},
+		Executors: []layer4.AssessmentExecutor{
+			{
+				Id:   "automated-executor",
+				Name: "Automated Executor",
+				Type: layer4.Automated,
+			},
+		},
 		Plans: []layer4.AssessmentPlan{
 			{
 				Control: layer4.Mapping{
@@ -46,6 +53,11 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 								Id:          "my-check-id",
 								Name:        "My Check",
 								Description: "My Check",
+								Executors: []layer4.ExecutorMapping{
+									{
+										Id: "automated-executor",
+									},
+								},
 							},
 						},
 					},
@@ -61,6 +73,8 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	components := *componentDefinition.Components
 	require.Len(t, *components[0].Props, 5)
 	require.Len(t, *components[1].Props, 3)
+	require.Equal(t, "automated-executor", components[1].Title)
+	require.Equal(t, "validation", components[1].Type)
 
 	ci := *components[0].ControlImplementations
 	require.Len(t, ci, 1)
@@ -83,4 +97,68 @@ func TestDefinitionBuilder_Build(t *testing.T) {
 	ci = *components[0].ControlImplementations
 	require.Len(t, ci, 1)
 	require.Equal(t, []oscalTypes.SetParameter{{ParamId: "main_branch_min_approvals", Values: []string{"2"}}}, *ci[0].SetParameters)
+}
+
+func TestDefinitionBuilder_AddValidationComponent_MultipleExecutors(t *testing.T) {
+	plan := layer4.EvaluationPlan{
+		Metadata: layer4.Metadata{
+			Author: layer4.Author{
+				Name: "myvalidator",
+			},
+		},
+		Executors: []layer4.AssessmentExecutor{
+			{
+				Id:   "executor-1",
+				Name: "Executor One",
+				Type: layer4.Automated,
+			},
+			{
+				Id:   "executor-2",
+				Name: "Executor Two",
+				Type: layer4.Automated,
+			},
+		},
+		Plans: []layer4.AssessmentPlan{
+			{
+				Control: layer4.Mapping{
+					EntryId: "OSPS-QA-07",
+				},
+				Assessments: []layer4.Assessment{
+					{
+						Requirement: layer4.Mapping{
+							EntryId: "OSPS-QA-07.01",
+						},
+						Procedures: []layer4.AssessmentProcedure{
+							{
+								Id:          "check-1",
+								Name:        "Check One",
+								Description: "First check",
+								Executors: []layer4.ExecutorMapping{
+									{Id: "executor-1"},
+								},
+							},
+							{
+								Id:          "check-2",
+								Name:        "Check Two",
+								Description: "Second check",
+								Executors: []layer4.ExecutorMapping{
+									{Id: "executor-2"},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	builder := NewDefinitionBuilder("ComponentDefinition", "v0.1.0")
+	componentDefinition := builder.AddValidationComponent(plan).Build()
+	require.Len(t, *componentDefinition.Components, 2)
+
+	components := *componentDefinition.Components
+	require.Equal(t, "executor-1", components[0].Title)
+	require.Equal(t, "executor-2", components[1].Title)
+	require.Equal(t, "validation", components[0].Type)
+	require.Equal(t, "validation", components[1].Type)
 }
