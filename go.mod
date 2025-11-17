@@ -3,7 +3,7 @@ module github.com/complytime/gemara2oscal
 go 1.24.4
 
 require (
-	github.com/oscal-compass/oscal-sdk-go v0.0.8
+	github.com/oscal-compass/oscal-sdk-go v0.0.9
 	github.com/ossf/gemara v0.14.0
 )
 
