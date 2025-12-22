@@ -19,6 +19,6 @@ require (
 
 require (
 	github.com/defenseunicorns/go-oscal v0.7.0
-	github.com/goccy/go-yaml v1.19.0
+	github.com/goccy/go-yaml v1.19.1
 	github.com/stretchr/testify v1.11.1
 )
