@@ -1,4 +1,4 @@
-module github.com/complytime/gemara2oscal
+module github.com/complytime-labs/gemara2oscal
 
 go 1.24.4
 

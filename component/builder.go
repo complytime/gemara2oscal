@@ -12,7 +12,7 @@ import (
 	"github.com/ossf/gemara/layer2"
 	"github.com/ossf/gemara/layer4"
 
-	"github.com/complytime/gemara2oscal/internal/utils"
+	"github.com/complytime-labs/gemara2oscal/internal/utils"
 )
 
 // DefinitionBuilder constructs an OSCAL Component Definition from Gemara
